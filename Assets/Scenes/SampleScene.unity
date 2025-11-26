@@ -604,7 +604,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0114f55713bcc046be7acd56f6388b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightManager
-  activeLightState: 0
+  activeLightState: 2
   lights:
   - {fileID: 1466638187}
   - {fileID: 2054481593}

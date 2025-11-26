@@ -22,13 +22,13 @@ public class LightManager : MonoBehaviour {
 
         while (true) {
             duration = Random.Range(2, 6);
+            yield return new WaitForSeconds(duration);
             int index = (int)activeLightState;
             int target = (index + 1) % 3;
             lights[index].TurnOff();
+            Debug.Log($"index {index}, target: {target}");
             lights[target].TurnOn();
             activeLightState = (Light)target;
-
-            yield return new WaitForSeconds(duration);
         }
     }
 
