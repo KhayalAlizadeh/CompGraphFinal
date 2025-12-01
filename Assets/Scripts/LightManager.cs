@@ -1,15 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class LightManager : MonoBehaviour {
-    enum Light {
+    public enum Light {
         Green,
         Red,
         Yellow
     }
+
+    private static LightManager instance;
+    public static LightManager Instance {
+        get {
+            return instance;
+        }
+    }
+
+    void Awake() {
+        if (instance == null) {
+            instance = this;
+        }
+    }
+    
     [SerializeField] private Light activeLightState = Light.Green;
-    private Light previousLightState;
+    public Light PreviousLightState { get; private set; }
+
+    public Light ActiveLightState {
+        get {
+            return activeLightState;
+        }
+        private set {
+            activeLightState = value;
+        }
+    }
+    
     [SerializeField] private List<ColoredLight> lights; // Green Red Yellow
 
     [SerializeField] private Player player;
@@ -29,9 +54,8 @@ public class LightManager : MonoBehaviour {
             int index = (int)activeLightState;
             int target = (index + 1) % 3;
             lights[index].TurnOff();
-            //Debug.Log($"index {index}, target: {target}");
             lights[target].TurnOn();
-            previousLightState = activeLightState;
+            PreviousLightState = activeLightState;
             activeLightState = (Light)target;
         }
     }
@@ -39,7 +63,7 @@ public class LightManager : MonoBehaviour {
     private IEnumerator LightRuleCheck() {
         while (true) {
 
-            if (activeLightState != previousLightState) {
+            if (activeLightState != PreviousLightState) {
                 // State changed
                 yield return new WaitForSeconds(lightStateChangeCheckDelay);
             }
@@ -65,23 +89,23 @@ public class LightManager : MonoBehaviour {
     }
 
     private void RuleGreen() {
-        // Must run
+        // Should run
         if (!player.IsRunning) {
-            // lose
+            // 
         }
     }
 
     private void RuleRed() {
         // Must stop
         if (player.IsRunning || player.IsDancing) {
-            // lose
+            player.GameOver();
         }
     }
 
     private void RuleYellow() {
         // Must dance
         if (!player.IsDancing) {
-            // lose
+            player.GameOver();
         }
     }
 
