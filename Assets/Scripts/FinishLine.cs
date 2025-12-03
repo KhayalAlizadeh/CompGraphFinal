@@ -10,6 +10,7 @@ public class FinishLine : MonoBehaviour {
     
     private void OnTriggerEnter(Collider other) {
         if (other.CompareTag("Player")) {
+            other.GetComponent<Player>().Dance();
             StartCoroutine(Win());
         }
     }
@@ -18,6 +19,6 @@ public class FinishLine : MonoBehaviour {
         win.gameObject.SetActive(true);
         win.SetText("You Win!");
         yield return new WaitForSeconds(sceneLoadDelay);
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }

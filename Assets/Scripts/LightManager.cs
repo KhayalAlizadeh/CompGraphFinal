@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class LightManager : MonoBehaviour {
     public enum Light {
+        None = -1,
         Green,
         Red,
         Yellow
@@ -24,7 +25,7 @@ public class LightManager : MonoBehaviour {
     }
     
     [SerializeField] private Light activeLightState = Light.Green;
-    public Light PreviousLightState { get; private set; }
+    public Light PreviousLightState { get; private set; } = Light.None;
 
     public Light ActiveLightState {
         get {
@@ -40,16 +41,27 @@ public class LightManager : MonoBehaviour {
     [SerializeField] private Player player;
 
     [SerializeField] private float lightStateChangeCheckDelay = 0.5f;
+    
+    [SerializeField] private int lightDurationMinInclusive = 2;
+    [SerializeField] private int lightDurationMaxExclusive = 6;
+    private bool canCheck = false;
+    
     private void Start() {
         StartCoroutine(DynamicLight());
-        StartCoroutine(LightRuleCheck());
     }
 
+    private void FixedUpdate() {
+        LightRuleCheck();
+    }
+    
     private IEnumerator DynamicLight() {
         int duration;
 
         while (true) {
-            duration = Random.Range(2, 6);
+            canCheck = false;
+            yield return new WaitForSeconds(lightStateChangeCheckDelay);
+            canCheck = true;
+            duration = Random.Range(lightDurationMinInclusive, lightDurationMaxExclusive);
             yield return new WaitForSeconds(duration);
             int index = (int)activeLightState;
             int target = (index + 1) % 3;
@@ -60,30 +72,29 @@ public class LightManager : MonoBehaviour {
         }
     }
 
-    private IEnumerator LightRuleCheck() {
-        while (true) {
+    private void LightRuleCheck() {
+        if (!canCheck) {
+            return;
+        }
 
-            if (activeLightState != PreviousLightState) {
-                // State changed
-                yield return new WaitForSeconds(lightStateChangeCheckDelay);
+        switch (activeLightState) {
+            case Light.None: {
+                break;
             }
-            
-            switch (activeLightState) {
-                case Light.Green: {
-                    RuleGreen();
-                    break;
+            case Light.Green: {
+                RuleGreen();
+                break;
                 }
-                case Light.Red: {
-                    RuleRed();
-                    break;
+            case Light.Red: {
+                RuleRed();
+                break;
                 }
-                case Light.Yellow: {
-                    RuleYellow();
-                    break;
+            case Light.Yellow: {
+                RuleYellow();
+                break;
                 }
-                default: {
-                    break;
-                }
+            default: {
+                break;
             }
         }
     }

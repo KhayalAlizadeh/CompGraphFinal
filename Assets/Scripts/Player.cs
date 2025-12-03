@@ -33,10 +33,14 @@ public class Player : MonoBehaviour
     private CharacterController controller;
     [Header("Values")]
     [SerializeField] private float moveSpeed;
+    [SerializeField] private float gravityMultiplier = 1f;
 
+    private bool isDeathDelayed = false;
+    private const float gravity = -9.81f;
     private Animator animator;
     private int runParameterID = 0;
     private int danceParameterID = 1;
+    private int deathParameterID = 2;
     private Vector2 moveInput;
     private Vector3 moveDirection;
 
@@ -44,6 +48,7 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         runParameterID = animator.parameters[runParameterID].nameHash;
         danceParameterID = animator.parameters[danceParameterID].nameHash;
+        deathParameterID = animator.parameters[deathParameterID].nameHash;
         controller = GetComponent<CharacterController>();
     }
     
@@ -64,21 +69,30 @@ public class Player : MonoBehaviour
         animator.SetBool(danceParameterID, true);
     }
 
+    public void Dance() {
+        animator.SetBool(runParameterID, false);
+        animator.SetBool(danceParameterID, true);
+    }
+
     void Update() {
         moveInput = move.action.ReadValue<Vector2>();
-        isRunning = (moveInput != Vector2.zero) && !isDancing;
-        moveDirection = new Vector3((moveInput.normalized * moveSpeed).x, 0, (moveInput.normalized * moveSpeed).y);
+        IsRunning = (moveInput != Vector2.zero) && !IsDancing;
+        moveDirection = new Vector3((moveInput.normalized * moveSpeed).x, gravity * gravityMultiplier, (moveInput.normalized * moveSpeed).y);
     }
 
     void FixedUpdate() {
-        if (!isDancing && isRunning) {
+        if (!IsDancing && IsRunning && !hasLost) { //run
             animator.SetBool(danceParameterID, false);
             animator.SetBool(runParameterID, true);
-            controller.Move(moveDirection * Time.deltaTime);
+            controller.Move(moveDirection * Time.fixedDeltaTime);
         }
-        else if (!isRunning && !isDancing) {
+        else if (!IsRunning && !IsDancing) { //stop
             animator.SetBool(runParameterID, false);
             animator.SetBool(danceParameterID, false);
+            controller.Move(moveDirection * Time.fixedDeltaTime);
+        }
+        else if (IsDancing) { //dance
+            controller.Move(new Vector3(0, gravity * gravityMultiplier, 0) * Time.fixedDeltaTime);
         }
     }
 
@@ -87,6 +101,7 @@ public class Player : MonoBehaviour
             return;
         }
         
+        animator.SetTrigger(deathParameterID);
         gameOverText.gameObject.SetActive(true);
         hasLost = true;
     }

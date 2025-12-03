@@ -15,7 +15,6 @@ public class NPC1 : MonoBehaviour {
 
     private int runParameterID = 0;
     private int danceParameterID = 1;
-    
 
     private enum Action {
         None,
