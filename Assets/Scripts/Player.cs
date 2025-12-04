@@ -35,7 +35,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float gravityMultiplier = 1f;
 
-    private bool isDeathDelayed = false;
     private const float gravity = -9.81f;
     private Animator animator;
     private int runParameterID = 0;

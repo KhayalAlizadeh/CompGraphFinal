@@ -85,7 +85,7 @@ public class NPC1 : MonoBehaviour {
         Act(wrongActions[UnityEngine.Random.Range(0, wrongActions.Count)]);
         
         Die();
-    }
+    } 
 
     private void Act(Action action) {
         
