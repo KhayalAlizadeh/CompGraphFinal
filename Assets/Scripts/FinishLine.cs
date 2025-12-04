@@ -17,7 +17,6 @@ public class FinishLine : MonoBehaviour {
     
     private IEnumerator Win() {
         win.gameObject.SetActive(true);
-        win.SetText("You Win!");
         yield return new WaitForSeconds(sceneLoadDelay);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }

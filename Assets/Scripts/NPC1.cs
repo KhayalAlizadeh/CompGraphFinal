@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using UnityEngine;
@@ -7,14 +8,15 @@ using Random = System.Random;
 public class NPC1 : MonoBehaviour {
     [SerializeField] private float accuracy; //%
     [SerializeField] private float speed = 10f;
-
+    [SerializeField] private float deathDestroyDelay = 2f;
     private Animator animator;
     private LightManager lightManager;
     private float accuracyRoll;
     private bool willMakeMistake = false;
-
+    private bool isDead = false;
     private int runParameterID = 0;
     private int danceParameterID = 1;
+    private int deathParameterID = 2;
 
     private enum Action {
         None,
@@ -27,11 +29,12 @@ public class NPC1 : MonoBehaviour {
         animator = GetComponent<Animator>();
         runParameterID = animator.parameters[runParameterID].nameHash;
         danceParameterID = animator.parameters[danceParameterID].nameHash;
+        deathParameterID = animator.parameters[deathParameterID].nameHash;
         lightManager = LightManager.Instance;
     }
 
     void Update() {
-        if (lightManager.ActiveLightState != lightManager.PreviousLightState) {
+        if (!isDead) {
             accuracyRoll = UnityEngine.Random.Range(0f, 100f);
             willMakeMistake = accuracyRoll >= accuracy;
             //Debug.Log("Light change detected by npc"); // This should run once flag it bro
@@ -84,7 +87,7 @@ public class NPC1 : MonoBehaviour {
         
         Act(wrongActions[UnityEngine.Random.Range(0, wrongActions.Count)]);
         
-        Die();
+        StartCoroutine(Die());
     } 
 
     private void Act(Action action) {
@@ -126,7 +129,11 @@ public class NPC1 : MonoBehaviour {
         animator.SetBool(danceParameterID, true);
     }
 
-    private void Die() {
-        Destroy(gameObject);
+    private IEnumerator Die() {
+        isDead = true;
+        animator.SetTrigger(deathParameterID);
+        yield return new WaitForSeconds(deathDestroyDelay);
+        
+        // Destroy(gameObject);
     }
 }

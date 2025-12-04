@@ -42,6 +42,7 @@ public class Player : MonoBehaviour
     private int deathParameterID = 2;
     private Vector2 moveInput;
     private Vector3 moveDirection;
+    public bool ApplyGravity { get; set; } = true;
 
     void Start() {
         animator = GetComponent<Animator>();
@@ -76,7 +77,11 @@ public class Player : MonoBehaviour
     void Update() {
         moveInput = move.action.ReadValue<Vector2>();
         IsRunning = (moveInput != Vector2.zero) && !IsDancing;
-        moveDirection = new Vector3((moveInput.normalized * moveSpeed).x, gravity * gravityMultiplier, (moveInput.normalized * moveSpeed).y);
+        moveDirection = new Vector3((moveInput.normalized * moveSpeed).x, 0, (moveInput.normalized * moveSpeed).y);
+
+        if (ApplyGravity) {
+            moveDirection.y = gravity * gravityMultiplier;
+        }
     }
 
     void FixedUpdate() {
@@ -88,9 +93,13 @@ public class Player : MonoBehaviour
         else if (!IsRunning && !IsDancing) { //stop
             animator.SetBool(runParameterID, false);
             animator.SetBool(danceParameterID, false);
-            controller.Move(moveDirection * Time.fixedDeltaTime);
+
+            if (ApplyGravity) {
+                controller.Move(moveDirection * Time.fixedDeltaTime);
+            }
+            
         }
-        else if (IsDancing) { //dance
+        else if (IsDancing && ApplyGravity) { //dance
             controller.Move(new Vector3(0, gravity * gravityMultiplier, 0) * Time.fixedDeltaTime);
         }
     }
