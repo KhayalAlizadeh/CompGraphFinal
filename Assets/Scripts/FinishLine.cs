@@ -19,6 +19,5 @@ public class FinishLine : MonoBehaviour {
         win.gameObject.SetActive(true);
         yield return new WaitForSeconds(sceneLoadDelay);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-        SceneManager.LoadScene(1);
     }
 }
